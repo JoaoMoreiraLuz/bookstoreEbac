@@ -3,11 +3,11 @@ name = "bookstore"
 version = "0.1.0"
 description = "Bookstore API"
 authors = [
-    {name = "João Gustavo"}
+    {name = "Joao Gustavo"}
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "django (>=6.0.2,<7.0.0)"
+    "django (==1.11.8)"
 ]
 
 [dependency-groups]
