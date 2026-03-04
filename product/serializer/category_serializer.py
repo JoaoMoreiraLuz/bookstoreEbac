@@ -1,13 +1,17 @@
 from rest_framework import serializers
 
-from product.models import category
+from product.models import Category
 
-class categorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = category
+        model = Category
         fields = [
+            'id',
             'title',
             'slug',
             'description',
             'active',
-            ]
+        ]
+        extra_kwargs = {
+            'slug': {'required': False}  # Slug não é obrigatório na criação
+        }
