@@ -2,6 +2,7 @@ import json
 
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
+from rest_framework.authtoken.models import Token
 
 from django.urls import reverse
 
@@ -25,7 +26,14 @@ class TestOrderViewSet(APITestCase):
         - Uma categoria
         - Um produto nessa categoria
         - Uma order com esse produto
+        - um usuário para autenticação
         """
+        self.user = UserFactory()
+        
+        # Autentica o cliente com um token de usuário
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
         self.category = CategoryFactory(title='technology')
         
         # Cria um produto com uma categoria associada
@@ -55,7 +63,8 @@ class TestOrderViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Extrai o primeiro pedido da resposta JSON
-        order_data = json.loads(response.content)[0]
+        response_data = json.loads(response.content)
+        order_data = response_data['results'][0]
         
         # Verifica se o produto dentro do pedido tem os dados corretos
         self.assertEqual(order_data['product'][0]['title'], self.product.title)
