@@ -3,6 +3,7 @@ import json
 from rest_framework.test import APITestCase, APIClient
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from product.factories import CategoryFactory
 from product.models import Category
@@ -22,7 +23,7 @@ class TestCategoryViewSet(APITestCase):
         """
         # Cria um produto inicial para testes de GET
         self.category = CategoryFactory(title='mouse')
-
+        
     def test_get_all_categories(self):
         """
         Testa se o endpoint GET /categories retorna a lista de categorias corretamente.
@@ -39,7 +40,8 @@ class TestCategoryViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Extrai o primeiro produto da resposta JSON
-        category_data = json.loads(response.content)[0]
+        response_data = json.loads(response.content)
+        category_data = response_data['results'][0]
         
         # Verifica se os dados retornados correspondem à categoria criada
         self.assertEqual(category_data['title'], self.category.title)

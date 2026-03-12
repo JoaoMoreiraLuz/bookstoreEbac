@@ -3,9 +3,10 @@ import json
 from rest_framework.test import APITestCase, APIClient
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from product.factories import CategoryFactory, ProductFactory
-from order.factories import OrderFactory, UserFactory
+from order.factories import UserFactory
 from product.models import Product
 
 class TestProductViewSet(APITestCase):
@@ -22,6 +23,10 @@ class TestProductViewSet(APITestCase):
         Cria dados iniciais para os testes.
         """
         self.user = UserFactory()
+
+        # Autentica o cliente com um token de usuário
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         
         # Cria um produto inicial para testes de GET
         self.product = ProductFactory(
@@ -36,7 +41,9 @@ class TestProductViewSet(APITestCase):
         1. Status code 200 OK
         2. Dados do produto na resposta estão corretos
         """
+
         # Faz requisição GET para listar produtos
+
         response = self.client.get(
             reverse('product-list', kwargs={'version': 'v1'})
         )
@@ -44,10 +51,12 @@ class TestProductViewSet(APITestCase):
         # Verifica se a requisição foi bem sucedida
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Extrai o primeiro produto da resposta JSON
-        product_data = json.loads(response.content)[0]
+        # Extrai o primeiro produto da resposta JSON (DRF retorna paginado)
+        response_data = json.loads(response.content)
+        product_data = response_data['results'][0]
         
         # Verifica se os dados retornados correspondem ao produto criado
+        self.assertEqual(product_data['id'], self.product.id)
         self.assertEqual(product_data['title'], self.product.title)
         self.assertEqual(product_data['price'], self.product.price)
         self.assertEqual(product_data['active'], self.product.active)
