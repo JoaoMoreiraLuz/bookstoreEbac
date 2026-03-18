@@ -10,7 +10,7 @@ class TestOrderSerializer(TestCase):
     Testes unitários para o OrderSerializer.
     Verifica se o serializer serializa/deserializa estrutura corretamente.
     """
-    
+
     def setUp(self) -> None:
         """
         setUp: executado antes de cada teste para preparar os dados.
@@ -21,7 +21,7 @@ class TestOrderSerializer(TestCase):
 
         # Cria uma order com múltiplos produtos usando factory
         self.order = OrderFactory(product=(self.product_1, self.product_2))
-        
+
         # Serializa a order para testar a saída JSON
         self.order_serializer = OrderSerializer(self.order)
 
@@ -34,9 +34,9 @@ class TestOrderSerializer(TestCase):
         """
         # Obtém os dados JSON do serializer
         serializer_data = self.order_serializer.data
-        
+
         # Verifica se o primeiro produto está com os dados corretos
-        self.assertEqual(serializer_data['product'][0]['title'], self.product_1.title)
-        
+        self.assertEqual(serializer_data["product"][0]["title"], self.product_1.title)
+
         # Verifica se o segundo produto está com os dados corretos
-        self.assertEqual(serializer_data['product'][1]['title'], self.product_2.title)
+        self.assertEqual(serializer_data["product"][1]["title"], self.product_2.title)

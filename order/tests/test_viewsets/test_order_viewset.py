@@ -11,6 +11,7 @@ from order.factories import UserFactory, OrderFactory
 from product.models import Product
 from order.models import Order
 
+
 class TestOrderViewSet(APITestCase):
     """
     Testes de integração para o OrderViewSet.
@@ -29,23 +30,22 @@ class TestOrderViewSet(APITestCase):
         - um usuário para autenticação
         """
         self.user = UserFactory()
-        
+
         # Autentica o cliente com um token de usuário
         token = Token.objects.create(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        self.category = CategoryFactory(title='technology')
-        
+        self.category = CategoryFactory(title="technology")
+
         # Cria um produto com uma categoria associada
         self.product = ProductFactory(
-            title='mouse', 
-            price=100, 
-            categories=[self.category]  # Associa a categoria ao produto
+            title="mouse",
+            price=100,
+            categories=[self.category],  # Associa a categoria ao produto
         )
-        
+
         # Cria uma order com o produto
         self.order = OrderFactory(product=self.product)
-
 
     def test_order(self):
         """
@@ -55,24 +55,25 @@ class TestOrderViewSet(APITestCase):
         2. Dados do pedido, produto e categoria estão corretos
         """
         # Faz requisição GET para listar orders
-        response = self.client.get(
-            reverse('order-list', kwargs={'version': 'v1'})
-        )
+        response = self.client.get(reverse("order-list", kwargs={"version": "v1"}))
 
         # Verifica se a requisição foi bem sucedida
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Extrai o primeiro pedido da resposta JSON
         response_data = json.loads(response.content)
-        order_data = response_data['results'][0]
-        
+        order_data = response_data["results"][0]
+
         # Verifica se o produto dentro do pedido tem os dados corretos
-        self.assertEqual(order_data['product'][0]['title'], self.product.title)
-        self.assertEqual(order_data['product'][0]['price'], self.product.price)
-        self.assertEqual(order_data['product'][0]['active'], self.product.active)
-        
+        self.assertEqual(order_data["product"][0]["title"], self.product.title)
+        self.assertEqual(order_data["product"][0]["price"], self.product.price)
+        self.assertEqual(order_data["product"][0]["active"], self.product.active)
+
         # Verifica se a categoria dentro do produto tem o título correto
-        self.assertEqual(order_data['product'][0]['categories'][0]['title'], self.product.categories.first().title)
+        self.assertEqual(
+            order_data["product"][0]["categories"][0]["title"],
+            self.product.categories.first().title,
+        )
 
     def test_create_order(self):
         """
@@ -84,19 +85,16 @@ class TestOrderViewSet(APITestCase):
         """
         user = UserFactory()
         product = ProductFactory()
-        
+
         # Prepara dados para criar um novo pedido
         # Note: product_id em lista porque ordem pode ter múltiplos produtos
-        data = json.dumps({
-            'product_id': [product.id],
-            'user': user.id
-        })
+        data = json.dumps({"product_id": [product.id], "user": user.id})
 
         # Faz requisição POST para criar um pedido
         response = self.client.post(
-            reverse('order-list', kwargs={'version': 'v1'}),
+            reverse("order-list", kwargs={"version": "v1"}),
             data=data,
-            content_type='application/json'
+            content_type="application/json",
         )
 
         # Verifica se o pedido foi criado (status 201)

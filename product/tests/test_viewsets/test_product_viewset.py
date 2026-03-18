@@ -9,12 +9,13 @@ from product.factories import CategoryFactory, ProductFactory
 from order.factories import UserFactory
 from product.models import Product
 
+
 class TestProductViewSet(APITestCase):
     """
     Testes de integração para o ProductViewSet.
     Testa os endpoints HTTP (GET, POST, etc) e a lógica de negócio completa.
     """
-    
+
     client = APIClient()  # Cliente HTTP para fazer requisições simuladas
 
     def setUp(self):
@@ -26,12 +27,12 @@ class TestProductViewSet(APITestCase):
 
         # Autentica o cliente com um token de usuário
         token = Token.objects.create(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
         # Cria um produto inicial para testes de GET
         self.product = ProductFactory(
-            title = 'mouse',
-            price = 100.00,
+            title="mouse",
+            price=100.00,
         )
 
     def test_get_all_products(self):
@@ -44,22 +45,20 @@ class TestProductViewSet(APITestCase):
 
         # Faz requisição GET para listar produtos
 
-        response = self.client.get(
-            reverse('product-list', kwargs={'version': 'v1'})
-        )
+        response = self.client.get(reverse("product-list", kwargs={"version": "v1"}))
 
         # Verifica se a requisição foi bem sucedida
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Extrai o primeiro produto da resposta JSON (DRF retorna paginado)
         response_data = json.loads(response.content)
-        product_data = response_data['results'][0]
-        
+        product_data = response_data["results"][0]
+
         # Verifica se os dados retornados correspondem ao produto criado
-        self.assertEqual(product_data['id'], self.product.id)
-        self.assertEqual(product_data['title'], self.product.title)
-        self.assertEqual(product_data['price'], self.product.price)
-        self.assertEqual(product_data['active'], self.product.active)
+        self.assertEqual(product_data["id"], self.product.id)
+        self.assertEqual(product_data["title"], self.product.title)
+        self.assertEqual(product_data["price"], self.product.price)
+        self.assertEqual(product_data["active"], self.product.active)
 
     def test_create_product(self):
         """
@@ -70,24 +69,22 @@ class TestProductViewSet(APITestCase):
         3. Os dados do produto são os esperados
         """
         category = CategoryFactory()
-        
+
         # Prepara dados para criar um novo produto (note: categories_write para escrita)
-        data = json.dumps({
-            'title': 'keyboard',
-            'price': 150.00,
-            'categories_write': [category.id]
-        })
+        data = json.dumps(
+            {"title": "keyboard", "price": 150.00, "categories_write": [category.id]}
+        )
 
         # Faz requisição POST para criar um produto
         response = self.client.post(
-            reverse('product-list', kwargs={'version': 'v1'}),
+            reverse("product-list", kwargs={"version": "v1"}),
             data=data,
-            content_type='application/json'
+            content_type="application/json",
         )
 
         # Verifica se o produto foi criado (status 201)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Verifica se o produto foi salvo no banco de dados com os dados corretos
-        created_product = Product.objects.get(title='keyboard')
+        created_product = Product.objects.get(title="keyboard")
         self.assertEqual(created_product.price, 150.00)
