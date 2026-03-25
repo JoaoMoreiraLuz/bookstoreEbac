@@ -32,7 +32,7 @@ ENV PYTHONUNBUFFERED=1 \
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
+    && apt-get install -y \
         # deps for installing poetry
         curl \
         # deps for building python deps
