@@ -1,5 +1,5 @@
 # `python-base` sets up all our shared environment variables
-FROM python:3.14-slim AS python-base
+FROM python:3.13.1-slim AS python-base
 
     # python
 ENV PYTHONUNBUFFERED=1 \
@@ -32,7 +32,7 @@ ENV PYTHONUNBUFFERED=1 \
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
+    && apt-get install --no-cache-dir --no-install-recommends -y \
         # deps for installing poetry
         curl \
         # deps for building python deps
@@ -57,6 +57,6 @@ WORKDIR /app
 
 COPY . /app/
 
-EXPOSE 8000
+EXPOSE 8001
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]
